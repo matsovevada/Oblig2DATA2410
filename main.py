@@ -1,16 +1,38 @@
-# This is a sample Python script.
+from flask import Flask
+from flask_restful import Api, Resource, reqparse, abort
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+app = Flask(__name__)
+api = Api(app)
 
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+employees = {}
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def abort_if_not_exists(employee_id):
+    if employee_id not in employees:
+        abort(404, message="Could not find employee...")
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+def abort_if_exists(employee_id):
+    if employee_id in employees:
+        abort(404, message="Employee already exists...")
+
+
+class Employee(Resource):
+
+    def get(self, employee_id):
+        return
+
+    def post(self, employee_id):
+        return
+
+    def put(self, employee_id):
+        return
+
+    def delete(self, employee_id):
+        return
+
+
+api.add_resource(Employee, "/employee/<int:employee_id>")
+
+if __name__ == "__main__":
+    app.run(debug=True)
