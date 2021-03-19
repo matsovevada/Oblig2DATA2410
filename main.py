@@ -1,13 +1,16 @@
 from flask import Flask, request, jsonify
 from flask_restful import Api, Resource, reqparse, abort
 import json
+import requests
 
 
 app = Flask(__name__)
 api = Api(app)
 BASE = "/"
 
-employees = {}
+employees = {
+    1: {'name': "Julia Hendricks", 'age': 32, 'position': "doggy"}
+}
 
 
 def abort_if_not_exists(employee_id):
@@ -34,7 +37,7 @@ class Employee(Resource):
         age = request.json['age']
         pos = request.json['position']
         employees[employee_id] = {'name': name, 'age': age, 'position': pos}
-        return jsonify("Post-result (200): " + str(employees[employee_id]))
+        return jsonify({"status": 200, "employee": employees[employee_id]})
 
     def put(self, employee_id):
         return
