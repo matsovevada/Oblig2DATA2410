@@ -40,7 +40,12 @@ class Employee(Resource):
         return jsonify({"status": 200, "employee": employees[employee_id]})
 
     def put(self, employee_id):
-        return
+        abort_if_not_exists(employee_id)
+        name = request.json['name']
+        age = request.json['age']
+        pos = request.json['position']
+        employees[employee_id] = {'name': name, 'age': age, 'position': pos}
+        return jsonify({"status": 200, "employee": employees[employee_id]})
 
     def delete(self, employee_id):
         return
