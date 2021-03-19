@@ -37,7 +37,7 @@ class Employee(Resource):
         age = request.json['age']
         pos = request.json['position']
         employees[employee_id] = {'name': name, 'age': age, 'position': pos}
-        return jsonify({"status": 200, "employee": employees[employee_id]})
+        return jsonify({"status": 201, "employee": employees[employee_id]})
 
     def put(self, employee_id):
         abort_if_not_exists(employee_id)
@@ -45,10 +45,12 @@ class Employee(Resource):
         age = request.json['age']
         pos = request.json['position']
         employees[employee_id] = {'name': name, 'age': age, 'position': pos}
-        return jsonify({"status": 200, "employee": employees[employee_id]})
+        return jsonify({"status": 201, "employee": employees[employee_id]})
 
     def delete(self, employee_id):
-        return
+        abort_if_not_exists(employee_id)
+        del employees[employee_id]
+        return jsonify({"status": 200, "message": "Successfully deleted employye " + str(employee_id)})
 
 
 api.add_resource(Employee, "/employee/<int:employee_id>")
