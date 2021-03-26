@@ -8,8 +8,8 @@ app = Flask(__name__)
 api = Api(app)
 
 users = {
-    1: {'name': "Testerino"},
-    2: {'name': "Testerino 2"},
+    0: {'name': "Testerino"},
+    1: {'name': "Testerino 2"},
     }
 
 rooms = {1: {'name': "testerinoroom"}}
@@ -32,8 +32,11 @@ class User(Resource):
             return users[userID]
         else: return users
 
-    def post(self):
-        pass
+    def post(self, userID=None):
+        name = request.json['name']
+        userID = len(users)
+        users[userID] = {'name' : name}
+        return users[userID], 201 
 
     def delete(self, userID):
         pass
