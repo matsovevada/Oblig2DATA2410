@@ -3,27 +3,9 @@ import requests
 import json
 
 BASE = "http://127.0.0.1:5000/api/"
-
 print('------------------------------------------')
 print('RESULT FROM GET:')
-response = requests.get(BASE + "rooms")
-print(response.json())
-
-print('------------------------------------------')
-print('RESULT FROM POST:')
-response = requests.post(BASE + "rooms", json={'name': "Peter-room", 'users': [], 'messages': []})
-print(response.json())
-
-print('------------------------------------------')
-print('RESULT FROM GET:')
-response = requests.get(BASE + "rooms")
-print(response.json())
-
-# api.add_resource(Chat_room_users, "/api/rooms/<int:roomID>/users", "/api/rooms/<int:roomID>/users/<int:userID>")
-
-print('------------------------------------------')
-print('RESULT FROM GET:')
-response = requests.get(BASE + "rooms/0/users")
+response = requests.get(BASE + "rooms/0/messages")
 print(response.json())
 
 print('------------------------------------------')
@@ -32,9 +14,16 @@ response = requests.put(BASE + "rooms/0/users/0")
 print(response.json())
 
 print('------------------------------------------')
-print('RESULT FROM GET:')
-response = requests.get(BASE + "rooms/0/users")
+print('RESULT FROM PUT:')
+response = requests.put(BASE + "rooms/0/0/messages", json={'msg': "Hei, dette fungerer"})
 print(response.json())
+
+print('------------------------------------------')
+print('RESULT FROM GET:')
+response = requests.get(BASE + "rooms/0/messages")
+print(response.json())
+
+
 
 # print('------------------------------------------')
 # print('RESULT FROM GET:')
