@@ -6,54 +6,48 @@ import requests
 
 app = Flask(__name__)
 api = Api(app)
-BASE = "/"
 
-employees = {
-    1: {'name': "Julia Hendricks", 'age': 32, 'position': "doggy"}
-}
+users = {1: {'name': "Testerino"}}
 
-
-def abort_if_not_exists(employee_id):
-    if employee_id not in employees:
-        abort(404, message="Could not find employee...")
+rooms = {1: {'name': "testerinoroom"}}
 
 
-def abort_if_exists(employee_id):
-    if employee_id in employees:
-        abort(404, message="Employee already exists...")
+def abort_if_not_exists(userID):
+    if userID not in users:
+        abort(404, message="Could not find User...")
 
 
-class Employee(Resource):
+def abort_if_exists(userID):
+    if userID in users:
+        abort(404, message="User already exists...")
 
-    @app.route(BASE + "employee/<employee_id>")
-    def get(self, employee_id):
-        abort_if_not_exists(employee_id)
-        return employees[employee_id]
+class User(Resource):
+    BASE = "/api/users"
 
-    @app.route(BASE + "employee/<employee_id>", methods=['POST'])
-    def post(self, employee_id):
-        abort_if_exists(employee_id)
-        name = request.json['name']
-        age = request.json['age']
-        pos = request.json['position']
-        employees[employee_id] = {'name': name, 'age': age, 'position': pos}
-        return jsonify({"status": 201, "employee": employees[employee_id]})
+    @app.route(BASE + "/<userID>")
+    def get(self, userID):
+        abort_if_not_exists(userID)
+        return users[userID]
 
-    def put(self, employee_id):
-        abort_if_not_exists(employee_id)
-        name = request.json['name']
-        age = request.json['age']
-        pos = request.json['position']
-        employees[employee_id] = {'name': name, 'age': age, 'position': pos}
-        return jsonify({"status": 201, "employee": employees[employee_id]})
+    def post(self):
+        pass
 
-    def delete(self, employee_id):
-        abort_if_not_exists(employee_id)
-        del employees[employee_id]
-        return jsonify({"status": 200, "message": "Successfully deleted employye " + str(employee_id)})
+    def delete(self, userID):
+        pass
 
 
-api.add_resource(Employee, "/employee/<int:employee_id>")
+class Chat_room(Resource):
+    def abort_if_not_exists(roomID):
+        if roomID not in rooms:
+            abort(404, message="Could not find room...")
+
+    def abort_if_exists(roomID):
+        if roomID in rooms:
+            abort(404, message="Room already exists...")
+
+
+api.add_resource(User, "/api/users")
+api.add_resource(Chat_room, "/api/room")
 
 if __name__ == "__main__":
     app.run(debug=True)
