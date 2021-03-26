@@ -27,7 +27,7 @@ def abort_if_exists(userID):
 class User(Resource):
     
     def get(self, userID=None):
-        if (userID): 
+        if (userID or userID == 0): 
             abort_if_not_exists(userID)
             return users[userID]
         else: return users
@@ -38,8 +38,17 @@ class User(Resource):
         users[userID] = {'name' : name}
         return {"status": 201, "message": "User successfully added", "user": users[userID]} 
 
-    def delete(self, userID):
-        pass
+    def delete(self, userID=None):
+        global users
+        if (userID or userID == 0):
+            abort_if_not_exists(userID) 
+            user = users[userID]
+            del users[userID]
+            return {"status": 410, "message": "User successfully deleted", "user" : user}
+        else: 
+            users = {}
+            return {"status": 410, "message": "All users successfully deleted"}
+        
 
 
 class Chat_room(Resource):

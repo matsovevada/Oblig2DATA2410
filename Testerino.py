@@ -18,3 +18,30 @@ print('------------------------------------------')
 print('RESULT FROM GET:')
 response = requests.get(BASE + "users/2")
 print(response.json())
+
+print('------------------------------------------')
+print('RESULT FROM DELETE:')
+response = requests.delete(BASE + "users/1")
+print(response.json())
+
+print('------------------------------------------')
+print('RESULT FROM GET:')
+response = requests.get(BASE + "users/1")
+print(response.json())
+
+print('------------------------------------------')
+print('RESULT FROM DELETE:')
+response = requests.delete(BASE + "users")
+print(response.json())
+
+print('------------------------------------------')
+print('RESULT FROM GET:')
+response = requests.get(BASE + "users/0")
+print(response.json())
+
+print('------------------------------------------')
+print('RESULT FROM GET:')
+response = requests.get(BASE + "users")
+print(response.json())
+
+
