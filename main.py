@@ -12,25 +12,37 @@ users = {
     1: {'name': "Testerino 2"},
     }
 
-rooms = {1: {'name': "testerinoroom"}}
+rooms = {0: {'name': "testerinoroom", 'users': [], 'messages': []}}
 
 
-def abort_if_not_exists(userID):
+def abort_if_user_not_exists(userID):
     if userID not in users:
         abort(404, message="Could not find User...")
 
 
-def abort_if_exists(userID):
+def abort_if_user_exists(userID):
     if userID in users:
         abort(404, message="User already exists...")
+
+
+def abort_if_room_not_exists(roomID):
+    if roomID not in rooms:
+        abort(404, message="Could not find room...")
+
+
+def abort_if_room_exists(roomID):
+    if roomID in rooms:
+        abort(404, message="Room already exists...")
+
 
 class User(Resource):
     
     def get(self, userID=None):
         if (userID or userID == 0): 
-            abort_if_not_exists(userID)
-            return users[userID]
-        else: return users
+            abort_if_user_not_exists(userID)
+            return {"status": 200, "message": "OK", "user": users[userID]}
+        else:
+            return {"status": 200, "message": "OK", "users": users}
 
     def post(self, userID=None):
         name = request.json['name']
@@ -41,28 +53,34 @@ class User(Resource):
     def delete(self, userID=None):
         global users
         if (userID or userID == 0):
-            abort_if_not_exists(userID) 
+            abort_if_user_not_exists(userID)
             user = users[userID]
             del users[userID]
             return {"status": 410, "message": "User successfully deleted", "user" : user}
         else: 
             users = {}
             return {"status": 410, "message": "All users successfully deleted"}
-        
 
 
 class Chat_room(Resource):
-    def abort_if_not_exists(roomID):
-        if roomID not in rooms:
-            abort(404, message="Could not find room...")
+    def get(self, roomID=None):
+        if (roomID or roomID == 0):
+            abort_if_room_not_exists(roomID)
+            return {'status': 200, 'message': "OK", 'room': rooms[roomID]}
+        else:
+            return {'status': 200, 'message': "OK", 'rooms': rooms}
 
-    def abort_if_exists(roomID):
-        if roomID in rooms:
-            abort(404, message="Room already exists...")
+    def post(self, roomID=None):
+        name = request.json['name']
+        roomID = len(rooms)
+        users = []
+        messages = []
+        rooms[roomID] = {'name': name, 'users': users, 'messages': messages}
+        return {'status': 201, 'message': "Room sucessfully created", 'room': roomID, 'name': name}
 
 
 api.add_resource(User, "/api/users", "/api/users/<int:userID>")
-api.add_resource(Chat_room, "/api/room")
+api.add_resource(Chat_room, "/api/rooms", "/api/rooms/<int:roomID>")
 
 if __name__ == "__main__":
     app.run(debug=True)
