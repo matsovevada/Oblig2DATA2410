@@ -19,6 +19,23 @@ print('RESULT FROM GET:')
 response = requests.get(BASE + "rooms")
 print(response.json())
 
+# api.add_resource(Chat_room_users, "/api/rooms/<int:roomID>/users", "/api/rooms/<int:roomID>/users/<int:userID>")
+
+print('------------------------------------------')
+print('RESULT FROM GET:')
+response = requests.get(BASE + "rooms/0/users")
+print(response.json())
+
+print('------------------------------------------')
+print('RESULT FROM PUT:')
+response = requests.put(BASE + "rooms/0/users/0")
+print(response.json())
+
+print('------------------------------------------')
+print('RESULT FROM GET:')
+response = requests.get(BASE + "rooms/0/users")
+print(response.json())
+
 # print('------------------------------------------')
 # print('RESULT FROM GET:')
 # response = requests.get(BASE + "users")

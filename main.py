@@ -78,9 +78,25 @@ class Chat_room(Resource):
         rooms[roomID] = {'name': name, 'users': users, 'messages': messages}
         return {'status': 201, 'message': "Room sucessfully created", 'room': roomID, 'name': name}
 
+class Chat_room_users(Resource):
+    # rooms = {0: {'name': "testerinoroom", 'users': [], 'messages': []}}
+    
+    # get all users in a room
+    def get(self, roomID):
+        abort_if_room_not_exists(roomID) 
+        return {"status": 200, "message": "OK", "Room users": rooms[roomID]['users']}
+
+    def put(self, roomID, userID):
+        abort_if_room_not_exists(roomID)
+        abort_if_user_not_exists(userID)
+        user = users[userID]
+        rooms[roomID]['users'].append(user)
+        return {"status": 200, "message": "Successfully added user to room " + rooms[roomID]['name'], "Room users": rooms[roomID]['users']}
+
 
 api.add_resource(User, "/api/users", "/api/users/<int:userID>")
 api.add_resource(Chat_room, "/api/rooms", "/api/rooms/<int:roomID>")
+api.add_resource(Chat_room_users, "/api/rooms/<int:roomID>/users", "/api/rooms/<int:roomID>/users/<int:userID>")
 
 if __name__ == "__main__":
     app.run(debug=True)
