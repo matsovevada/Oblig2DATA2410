@@ -36,7 +36,7 @@ class User(Resource):
         name = request.json['name']
         userID = len(users)
         users[userID] = {'name' : name}
-        return users[userID], 201 
+        return {"status": 201, "message": "User successfully added", "user": users[userID]} 
 
     def delete(self, userID):
         pass
