@@ -46,9 +46,13 @@ def abort_if_user_not_in_room(roomID, userID):
 class User(Resource):
     
     def get(self, userID=None):
+
+        # get a specific user
         if (userID or userID == 0): 
             abort_if_user_not_exists(userID)
             return {"status": 200, "message": "OK", "user": users[userID]}
+
+        # get all users
         else:
             return {"status": 200, "message": "OK", "users": users}
 
@@ -60,11 +64,15 @@ class User(Resource):
 
     def delete(self, userID=None):
         global users
+
+        # delete a specific user
         if (userID or userID == 0):
             abort_if_user_not_exists(userID)
             user = users[userID]
             del users[userID]
             return {"status": 410, "message": "User successfully deleted", "user" : user}
+
+        # delete all users
         else: 
             users = {}
             return {"status": 410, "message": "All users successfully deleted"}
@@ -72,9 +80,13 @@ class User(Resource):
 
 class Chat_room(Resource):
     def get(self, roomID=None):
+
+        # get a specific chat room
         if (roomID or roomID == 0):
             abort_if_room_not_exists(roomID)
             return {'status': 200, 'message': "OK", 'room': rooms[roomID]}
+
+        # get all chat rooms
         else:
             return {'status': 200, 'message': "OK", 'rooms': rooms}
 
@@ -128,15 +140,6 @@ class Messages(Resource):
         msg = {'user' : userID, 'msg_content' : request.json['msg']}
         rooms[roomID]['messages'].append(msg)
         return {"status": 401, "message": "Message sent"}
-
-
-
-
-
-    
-
-
-
 
 api.add_resource(User, "/api/users", "/api/users/<int:userID>")
 api.add_resource(Chat_room, "/api/rooms", "/api/rooms/<int:roomID>")
