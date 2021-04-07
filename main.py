@@ -2,18 +2,17 @@ from flask import Flask, request, jsonify
 from flask_restful import Api, Resource, reqparse, abort
 import json
 import requests
-
+import random
 
 app = Flask(__name__)
 api = Api(app)
 
 users = {
-    0: {'name': "Testerino"},
     1: {'name': "Testerino 2"},
     4: {'name': "Test"}
     }
 
-rooms = {0: {'name': "testerinoroom", 'users': [{'username' : "Test" , 'userID' : 4}], 'messages': []}}
+rooms = {1: {'name': "testerinoroom", 'users': [{'username' : "Test" , 'userID' : 4}], 'messages': []}}
 
 def abort_if_user_not_exists(userID):
     if userID not in users:
@@ -49,7 +48,7 @@ class User(Resource):
     def get(self, userID=None):
 
         # get a specific user
-        if (userID or userID == 0): 
+        if (userID): 
             abort_if_user_not_exists(userID)
             return {"status": 200, "message": "OK", "user": users[userID]}
 
@@ -59,7 +58,9 @@ class User(Resource):
 
     def post(self, userID=None):
         name = request.json['name']
-        userID = len(users)
+        userID = random.randint(1,10000)
+        while userID in users:
+            userID = random.randint(1,10000)
         users[userID] = {'name' : name}
         return {"status": 201, "message": "User successfully added", "user": users[userID], "userID": userID} 
 
@@ -67,7 +68,7 @@ class User(Resource):
         global users
 
         # delete a specific user
-        if (userID or userID == 0):
+        if (userID):
             abort_if_user_not_exists(userID)
             user = users[userID]
             del users[userID]
@@ -84,7 +85,7 @@ class Chat_room(Resource):
         abort_if_user_not_exists(userID)
 
         # get a specific chat room
-        if (roomID or roomID == 0):
+        if (roomID):
             abort_if_room_not_exists(roomID)
             return {'status': 200, 'message': "OK", 'room': rooms[roomID]}
 
@@ -95,7 +96,9 @@ class Chat_room(Resource):
     def post(self, roomID=None, userID=None):
         abort_if_user_not_exists(userID)
         name = request.json['name']
-        roomID = len(rooms)
+        roomID = random.randint(1,1000)
+        while roomID in rooms:
+            roomID = random.randint(1,1000)
         users = []
         messages = []
         rooms[roomID] = {'name': name, 'users': users, 'messages': messages}
@@ -128,7 +131,7 @@ class Messages(Resource):
         if not user_in_room(roomID, userID):
             abort(404, message="User not in room")
         # Return all messages from specific user
-        if (target_userID or target_userID == 0):
+        if (target_userID):
             msgs = []
             for msg in rooms[roomID]['messages']:
                 if (msg['userID'] == target_userID):
