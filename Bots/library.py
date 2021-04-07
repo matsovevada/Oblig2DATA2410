@@ -38,7 +38,6 @@ def get_room(userID, roomID):
     response = requests.get(BASE + f"{userID}/api/rooms/{roomID}")
     return response.json()
 
-
 # get all chat rooms
 def get_all_rooms(userID):
     response = requests.get(BASE + f"{userID}/api/rooms")

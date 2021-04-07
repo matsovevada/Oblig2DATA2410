@@ -3,9 +3,41 @@ from flask_restful import Api, Resource, reqparse, abort
 import json
 import requests
 import random
+import socket
+import threading
 
 app = Flask(__name__)
 api = Api(app)
+
+#Server socket
+PORT = 5001
+SERVER = 'localhost'
+ADDR = (SERVER, PORT)
+
+connections = []
+
+def server():
+    print("SERVER LISTENING...")
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+    server.bind(ADDR)
+
+    while True:
+        server.listen()
+        conn, addr = server.accept()
+        connections.append(conn)
+        print("Connected")
+
+
+def notify(alert):
+    if alert:
+        msg = "Halloi"
+        for conn in connections:
+            conn.send(msg.encode("utf-8"))
+
+thread = threading.Thread(target=server)
+thread.start()
 
 users = {}
 
@@ -151,6 +183,10 @@ class Messages(Resource):
 
         msg = {'userID' : userID, 'msg_content' : request.json['msg']}
         rooms[roomID]['messages'].append(msg)
+        #notify 
+        alert = "string"
+        notify(alert)
+
         return {"status": 401, "message": "Message sent"}
 
 api.add_resource(User, "/api/users", "/api/users/<int:userID>")
