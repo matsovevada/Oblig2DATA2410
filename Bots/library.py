@@ -22,12 +22,12 @@ def register_user(name):
     return response.json()
 
 # delete a specific user
-def delete_user(userID)
+def delete_user(userID):
     response = requests.delete(BASE + f"api/users/{userID}")
     return response.json()
 
 # delete all users 
-def delete_all_users()
+def delete_all_users():
     response = requests.delete(BASE + "api/users")
     return response.json()
 

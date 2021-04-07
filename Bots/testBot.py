@@ -13,7 +13,7 @@ class Test_bot:
 
         # Create room
         room_name = "Rom"
-        created_room = lib.create_room(self.id, room_name)
+        print(lib.create_room(self.id, room_name))
 
         # Join room
         rooms = lib.get_all_rooms(self.id)['rooms']
@@ -21,9 +21,12 @@ class Test_bot:
         print(lib.join_room(self.id, roomID))
        
         # Get user and user msg
-        random_user_in_room = random.choice(lib.get_all_users_in_room(self.id, roomID)['Room users'])
-        userID_in_room = random_user_in_room['userID'] 
-        print(lib.get_messages_user(self.id, userID_in_room, roomID))
+        room_users = lib.get_all_users_in_room(self.id, roomID)['Room users']
+        random_user_in_room = random.choice(room_users)
+        target_userID = random_user_in_room['userID'] 
+
+        print(lib.get_messages_user(self.id, target_userID, roomID))
+
 
         # Send msg
         msg = "Hello"
@@ -36,9 +39,17 @@ class Test_bot:
         print(lib.get_room(self.id, roomID))
 
         # Get all users
-        print(lib.get_all_users(self.id))
+        print(lib.get_all_users())
 
-        # 
+        # delete user
+        print(lib.delete_user(self.id))
+
+        # delete all users
+        print(lib.delete_all_users())
+
+         # Get all users
+        print(lib.get_all_users())
+
     
 
 bot = Test_bot()

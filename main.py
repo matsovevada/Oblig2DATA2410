@@ -7,12 +7,10 @@ import random
 app = Flask(__name__)
 api = Api(app)
 
-users = {
-    1: {'name': "Testerino 2"},
-    4: {'name': "Test"}
-    }
+users = {}
 
-rooms = {1: {'name': "testerinoroom", 'users': [{'username' : "Test" , 'userID' : 4}], 'messages': []}}
+# 1: {'name': "testerinoroom", 'users': [{'username' : "Testerino 2" , 'userID' : 1}], 'messages': []}
+rooms = {}
 
 def abort_if_user_not_exists(userID):
     if userID not in users:
@@ -151,7 +149,7 @@ class Messages(Resource):
         if not user_in_room(roomID, userID):
             abort(404, message="User not in room")
 
-        msg = {'user' : userID, 'msg_content' : request.json['msg']}
+        msg = {'userID' : userID, 'msg_content' : request.json['msg']}
         rooms[roomID]['messages'].append(msg)
         return {"status": 401, "message": "Message sent"}
 
