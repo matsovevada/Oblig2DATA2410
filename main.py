@@ -10,6 +10,7 @@ api = Api(app)
 users = {
     0: {'name': "Testerino"},
     1: {'name': "Testerino 2"},
+    4: {'name': "Test"}
     }
 
 rooms = {0: {'name': "testerinoroom", 'users': [{'username' : "Test" , 'userID' : 4}], 'messages': []}}
@@ -33,15 +34,15 @@ def abort_if_room_exists(roomID):
     if roomID in rooms:
         abort(404, message="Room already exists...")
 
-def abort_if_user_not_in_room(roomID, userID):
+def user_in_room(roomID, userID):
     #[{'name': 'Testerino'}]
     user_in_room = False
     for user in rooms[roomID]['users']:
         if user['userID'] == userID:
             user_in_room = True
 
-    if not user_in_room:
-        abort(404, message="Not allowed, user not in room...")
+    return user_in_room
+
 
 class User(Resource):
     
@@ -111,22 +112,26 @@ class Chat_room_users(Resource):
     def put(self, roomID, userID):
         abort_if_room_not_exists(roomID)
         abort_if_user_not_exists(userID)
+        if user_in_room(roomID, userID):
+             abort(404, message="User is already in room")
+        
         user = users[userID]
         rooms[roomID]['users'].append({'Username': user, 'userID' : userID})
         return {"status": 200, "message": "Successfully added user to room " + rooms[roomID]['name'], "Room users": rooms[roomID]['users']}
 
 class Messages(Resource):
 
-    # Gets messsages from user if userID is define, gets all messages if not defined 
-    def get(self, roomID, userID = None):
+    # Gets messsages from user if userID is defined, gets all messages if not defined 
+    def get(self, roomID, userID, target_userID=None):
         abort_if_room_not_exists(roomID)
+        abort_if_user_not_exists(userID)
+        if not user_in_room(roomID, userID):
+            abort(404, message="User not in room")
         # Return all messages from specific user
-        if (userID or userID == 0):
-            abort_if_user_not_exists(userID)
-            abort_if_user_not_in_room(roomID, userID)
+        if (target_userID or target_userID == 0):
             msgs = []
             for msg in rooms[roomID]['messages']:
-                if (msg['userID'] == userID):
+                if (msg['userID'] == target_userID):
                     msgs.append(msg)
             return {"status": 200, "message": "OK", "User-messages: ": msgs}
         # Return all messages in given room
@@ -139,17 +144,18 @@ class Messages(Resource):
         # Send message, check if user is in room and appened to messages in room
     def put(self, roomID, userID):
         abort_if_room_not_exists(roomID)
-        abort_if_user_not_in_room(roomID, userID)
+
+        if not user_in_room(roomID, userID):
+            abort(404, message="User not in room")
+
         msg = {'user' : userID, 'msg_content' : request.json['msg']}
         rooms[roomID]['messages'].append(msg)
         return {"status": 401, "message": "Message sent"}
 
 api.add_resource(User, "/api/users", "/api/users/<int:userID>")
 api.add_resource(Chat_room, "/<int:userID>/api/rooms", "/<int:userID>/api/rooms/<int:roomID>")
-#, "/<int:userID>/api/rooms/<int:roomID>/users/<int:userID>"
-                                        #"1/api/rooms/1/users"
 api.add_resource(Chat_room_users, "/<int:userID>/api/rooms/<int:roomID>/users")
-api.add_resource(Messages, "/api/rooms/<int:roomID>/messages", "/api/rooms/<int:roomID>/<int:userID>/messages")
+api.add_resource(Messages, "/<int:userID>/api/rooms/<int:roomID>/messages", "/<int:userID>/api/rooms/<int:roomID>/<int:target_userID>/messages")
 
 if __name__ == "__main__":
     app.run(debug=True)
