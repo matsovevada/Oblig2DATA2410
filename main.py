@@ -79,7 +79,8 @@ class User(Resource):
 
 
 class Chat_room(Resource):
-    def get(self, roomID=None):
+    def get(self, roomID=None, userID=None):
+        abort_if_user_not_exists(userID)
 
         # get a specific chat room
         if (roomID or roomID == 0):
@@ -90,7 +91,8 @@ class Chat_room(Resource):
         else:
             return {'status': 200, 'message': "OK", 'rooms': rooms}
 
-    def post(self, roomID=None):
+    def post(self, roomID=None, userID=None):
+        abort_if_user_not_exists(userID)
         name = request.json['name']
         roomID = len(rooms)
         users = []
@@ -101,7 +103,8 @@ class Chat_room(Resource):
 class Chat_room_users(Resource):
     
     # get all users in a room
-    def get(self, roomID):
+    def get(self, roomID, userID):
+        abort_if_user_not_exists(userID)
         abort_if_room_not_exists(roomID) 
         return {"status": 200, "message": "OK", "Room users": rooms[roomID]['users']}
 
@@ -142,8 +145,10 @@ class Messages(Resource):
         return {"status": 401, "message": "Message sent"}
 
 api.add_resource(User, "/api/users", "/api/users/<int:userID>")
-api.add_resource(Chat_room, "/api/rooms", "/api/rooms/<int:roomID>")
-api.add_resource(Chat_room_users, "/api/rooms/<int:roomID>/users", "/api/rooms/<int:roomID>/users/<int:userID>")
+api.add_resource(Chat_room, "/<int:userID>/api/rooms", "/<int:userID>/api/rooms/<int:roomID>")
+#, "/<int:userID>/api/rooms/<int:roomID>/users/<int:userID>"
+                                        #"1/api/rooms/1/users"
+api.add_resource(Chat_room_users, "/<int:userID>/api/rooms/<int:roomID>/users")
 api.add_resource(Messages, "/api/rooms/<int:roomID>/messages", "/api/rooms/<int:roomID>/<int:userID>/messages")
 
 if __name__ == "__main__":
