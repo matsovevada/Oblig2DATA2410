@@ -6,23 +6,54 @@ class Test_bot:
         self.name = "Test bot"
         self.id = None
 
-    def main_function(self):
-        # Create user
-        print('Create user:')
+    def register(self):
         response = lib.register_user(self.name)
-        self.id = response['userID']
-        print(response)
+        id = response['userID']
+        bot.id = id
+        print(f"User registered with name {self.name} and ID {id}")
+        return id
 
-        # Create room
-        print('Create room:')
-        room_name = "Rom"
-        print(lib.create_room(self.id, room_name))
+    def create_room(self):
+        room_names = ['Kollokvie', 'Just chatting', 'Seminar', 'Secret room', 'The room', 'The chat', 'TechChat', 'AllChat', 'TeamRoom', 'LocalChat']
+       
+        room_name = random.choice(room_names)
+        
+        # check that the room name isn't in use
+        # rooms = lib.get_all_rooms(self.id)['rooms']
+        rooms = lib.get_all_rooms(self.id)['rooms']
 
-        # Join room
-        print('Join room:')
+        for room in rooms:
+            if room['name'] == room_name:
+                room_name = f"{room_name} #{random.randint(1,10000)}"
+                break
+        
+        lib.create_room(self.id, room_name)
+        print(f"Room created with name {room_name}")
+
+    def join_room(self):
         rooms = lib.get_all_rooms(self.id)['rooms']
         roomID = random.choice(list(rooms.keys()))
-        print(lib.join_room(self.id, roomID))
+        room = lib.join_room(self.id, roomID)
+        room_name = room['Room name']
+        print(f"Joined room with name {room_name}")
+
+    def main_function(self):
+        # # Create user
+        # print('Create user:')
+        # response = lib.register_user(self.name)
+        # self.id = response['userID']
+        # print(response)
+
+        # # Create room
+        # print('Create room:')
+        # room_name = "Rom"
+        # print(lib.create_room(self.id, room_name))
+
+        # # Join room
+        # print('Join room:')
+        # rooms = lib.get_all_rooms(self.id)['rooms']
+        # roomID = random.choice(list(rooms.keys()))
+        # print(lib.join_room(self.id, roomID))
        
         # Get user and user msg
         print('Get user and user msg:')
@@ -63,4 +94,7 @@ class Test_bot:
 
 
 bot = Test_bot()
-bot.main_function()
+bot.register()
+print(bot.id)
+print(lib.get_all_users(bot.id))
+bot.create_room()

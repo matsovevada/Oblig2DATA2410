@@ -21,6 +21,7 @@ def server():
     print("SERVER LISTENING...")
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
     server.bind(ADDR)
 
     while True:
@@ -40,10 +41,17 @@ def notify(alert):
 thread = threading.Thread(target=server)
 thread.start()
 
-users = {}
+users = {
+    1: {'name': "Bob"}
+}
 
-# 1: {'name': "testerinoroom", 'users': [{'username' : "Testerino 2" , 'userID' : 1}], 'messages': []}
-rooms = {}
+# default chat rooms, new rooms are appended to this dictionary
+rooms = {
+    1: {'name': "General", 'users': [], 'messages': []},
+    2: {'name': "Kosegruppa", 'users': [], 'messages': []},
+    3: {'name': "Lørdagspils", 'users': [], 'messages': []},
+    4: {'name': "Breakoutroom", 'users': [], 'messages': []}
+    }
 
 
 def abort_if_user_not_exists(userID):
@@ -80,6 +88,7 @@ class User(Resource):
 
     def get(self, target_userID=None):
         userID = request.json['userID']
+        print("USER_ID" + str(userID))
         abort_if_user_not_exists(userID)
         # get a specific user
         if (target_userID):
@@ -96,6 +105,9 @@ class User(Resource):
         while userID in users:
             userID = random.randint(1,10000)
         users[userID] = {'name' : name}
+
+        print(users)
+
         return {"status": 201, "message": "User successfully added", "user": users[userID], "userID": userID} 
 
     def delete(self, target_userID=None):
@@ -160,7 +172,7 @@ class Chat_room_users(Resource):
         
         user = users[userID]
         rooms[roomID]['users'].append({'Username': user, 'userID' : userID})
-        return {"status": 200, "message": "Successfully added user to room " + rooms[roomID]['name'], "Room users": rooms[roomID]['users']}
+        return {"status": 200, "message": "Successfully added user to room " + rooms[roomID]['name'], "Room users": rooms[roomID]['users'], "Room name": rooms[roomID]['name']}
 
 class Messages(Resource):
 
