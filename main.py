@@ -196,7 +196,7 @@ class Messages(Resource):
             msgs = []
             for msg in rooms[roomID]['messages']:
                     msgs.append(msg)
-            return {"status": 200, "message": "OK", "All messages: ": msgs}
+            return {"status": 200, "message": "OK", "All messages:": msgs}
 
         # Send message, check if user is in room and appened to messages in room
     def put(self, roomID):
@@ -206,9 +206,12 @@ class Messages(Resource):
         if not user_in_room(roomID, userID):
             abort(404, message="User not in room")
 
-        msg = {'userID' : userID, 'msg_content' : request.json['msg']}
+        # Adds message to room, msgID is used to keep track of messages for printing to the client
+        msgID = len(rooms[roomID]['messages']) + 1
+        msg = {'userID' : userID, 'msg_content' : request.json['msg'], 'msgID' : msgID}
         rooms[roomID]['messages'].append(msg)
-        #notify 
+
+        #Notify client when a messages is received in room 
         alert = "string"
         notify(alert)
 

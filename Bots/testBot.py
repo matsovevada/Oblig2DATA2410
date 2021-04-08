@@ -5,6 +5,7 @@ class Test_bot:
     def __init__(self):
         self.name = "Test bot"
         self.id = None
+        self.last_msgIDs = {}
 
     def register(self):
         response = lib.register_user(self.name)
@@ -37,6 +38,58 @@ class Test_bot:
         room_name = room['Room name']
         print(f"Joined room with name {room_name}")
 
+    def bot_message(self):
+        return "Halloi"
+
+
+    
+    # Iterates over all chatrooms and finds rooms where the bot is present, returns list of roomID(s)
+    def bot_in_rooms(self):
+        bot_in_rooms_list = []
+        rooms = lib.get_all_rooms(self.id)['rooms']
+        for roomID, room in rooms.items():
+                for user in room['users']:
+                    if user['userID'] == self.id:
+                        bot_in_rooms_list.append(roomID)
+        return bot_in_rooms_list
+
+    # Send message to random room where the bot is present
+    def send_message(self):
+        msg = self.bot_message()
+        roomID_list = self.bot_in_rooms()
+        target_roomID = random.choice(roomID_list)
+        lib.send_message(self.id, target_roomID, msg)
+
+    # Get messages in room, last_msgID makes sure only new messages are printed to the client  
+    def get_messages_in_room(self, roomID):
+        messages = lib.get_messages_in_room(self.id, roomID)['All messages:']
+
+        if roomID in self.last_msgIDs:
+            counter = self.last_msgIDs[roomID]
+            for message in messages:
+                if counter < message['msgID']:
+                    userID = message['userID']
+                    msg = message['msg_content']
+                    print(f"Room: {roomID} , {userID}: {msg}")
+                    counter = counter+1
+            
+            self.last_msgIDs[roomID] = counter
+
+        else:
+            for message in messages:
+                userID = message['userID']
+                msg = message['msg_content']
+                print(f"Room: {roomID} , {userID}: {msg}")
+
+            self.last_msgIDs[roomID] = len(messages)
+            
+
+                    
+
+
+        
+
+
     def main_function(self):
         # # Create user
         # print('Create user:')
@@ -65,9 +118,9 @@ class Test_bot:
 
 
         # Send msg
-        print('Send msg:')
-        msg = "Hello"
-        print(lib.send_message(self.id, roomID, msg))
+        #print('Send msg:')
+        #msg = "Hello"
+        #print(lib.send_message(self.id, roomID, msg))
 
 
         # Get room
@@ -95,6 +148,18 @@ class Test_bot:
 
 bot = Test_bot()
 bot.register()
-print(bot.id)
-print(lib.get_all_users(bot.id))
-bot.create_room()
+#print(bot.id)
+#print(lib.get_all_users(bot.id))
+#bot.create_room()
+#bot.join_room()
+#bot.send_message()
+
+lib.join_room(bot.id, 1)
+bot.get_messages_in_room(1)
+lib.send_message(bot.id, 1, "Halloi")
+lib.send_message(bot.id, 1, "halloi")
+bot.get_messages_in_room(1)
+lib.send_message(bot.id, 1, "siste")
+bot.get_messages_in_room(1)
+
+
