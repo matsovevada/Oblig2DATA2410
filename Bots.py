@@ -8,6 +8,7 @@ class Bots:
         self.name = name
         self.id = None
         self.last_msgIDs = {}
+        self.QnA = None
 
     def register(self):
         response = lib.register_user(self.name)
@@ -24,12 +25,10 @@ class Bots:
         # check that the room name isn't in use
         # rooms = lib.get_all_rooms(self.id)['rooms']
         rooms = lib.get_all_rooms(self.id)['rooms']
-        for room in rooms:
-            print('here2')
+
+        for roomID, room in rooms.items():
             if room['name'] == room_name:
-                print('here3')
                 room_name = f"{room_name} #{random.randint(1,10000)}"
-                print('here4')
                 break
         
         lib.create_room(self.id, room_name)
@@ -89,6 +88,38 @@ class Per(Bots):
         self.join_room()
         time.sleep(2)
         self.send_message('Skjera bagera?')
+
+class Quiz_master(Bots):
+    
+    def start(self):
+
+        self.QnA = { 
+            1 : "How many days does it take for the Earth to orbit the Sun?", 
+            2 : "Until 1923, what was the Turkish city of Istanbul called?", 
+            3 : "What’s the capital of Canada?",
+            4 : "Name the longest river in the world",
+            5 : "Where was the first modern Olympic Games held?",
+            6 : "Which football team is known as ‘The Red Devils’?",
+            7 : "What was the most-watched series on Netflix in 2019?",
+            8 : "What is the capital of Norway?",
+            9 : "What was the downloaded app in 2020?",
+            10 : "What is the largest country in the world?",
+            11 : "Which nationality was the polar explorer Roald Amundsen?",
+            12 : "In bowling, what is the term given for three consecutive strikes?",
+            13 : "Who was Donald Trump's vice president?",
+            14 : "What was Britney Spears’ first single called?",
+            15 : "What is David Bowie’s real name?"
+        }
+          
+        # send a message to all rooms every 5th second
+        while True:
+            time.sleep(5)
+            rooms = lib.get_all_rooms(self.id)['rooms']
+
+            for roomID, room in rooms.items():
+                if len(room['users']) > 0: # only send to rooms with users
+                    question = random.choice(self.QnA)
+                    lib.send_message(self.id, roomID, question)
 
 
 class Haarek(Bots):

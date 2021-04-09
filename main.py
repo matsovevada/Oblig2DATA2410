@@ -109,10 +109,15 @@ class User(Resource):
 
     def post(self):
         name = request.json['name']
-        userID = random.randint(1,10000)
-        while userID in users:
-            userID = random.randint(1,10000)
-        users[userID] = {'name' : name}
+
+        if name == 'Quiz-master':
+            userID = 1
+        
+        else:
+            userID = random.randint(2,10000)
+            while userID in users:
+                userID = random.randint(2,10000)
+            users[userID] = {'name' : name}
 
         return {"status": 201, "message": "User successfully added", "user": users[userID], "userID": userID} 
 
@@ -210,7 +215,8 @@ class Messages(Resource):
         abort_if_room_not_exists(roomID)
         userID = request.json['userID']
         abort_if_user_not_exists(userID)
-        if not user_in_room(roomID, userID):
+
+        if userID != 1 and not user_in_room(roomID, userID): # userID 1 is reserved for the quiz master and quiz master is allowed to send messages in rooms it is not a part of
             abort(404, message="User not in room")
 
         # Adds message to room, msgID is used to keep track of messages for printing to the client

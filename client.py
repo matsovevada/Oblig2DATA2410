@@ -4,6 +4,7 @@ import os
 import Bots
 import time
 import pickle
+import threading
 
 ## CLIENT ## 
 
@@ -28,6 +29,11 @@ active_bot = None
 if bot == 'Per':
     per = Bots.Per('Per')
     active_bot = per
+elif bot == 'Quiz-master':
+    quiz_master = Bots.Quiz_master('Quiz-master')
+    active_bot = quiz_master
+else:
+    print(f"{bot} is not a valid choice, please choose between the following bots: Per, Quiz-master")
 
 elif bot == 'Haarek':
     haarek = Bots.Haarek('Hårek')
@@ -59,7 +65,8 @@ if args.notifications:
         client.connect(ADDR)
         bot_id = active_bot.register()
         client.send(str(bot_id).encode())
-        active_bot.start()
+        thread = threading.Thread(target=active_bot.start)
+        thread.start()
         receive()
     except ConnectionRefusedError as e :
         print("[ERROR] Failed to connect to server: " + str(e))
@@ -67,7 +74,8 @@ if args.notifications:
 
 
 else: 
-    active_bot.start()
+    thread = threading.Thread(target=active_bot.start)
+    thread.start()
     while True:
         time.sleep(10)
         active_rooms = active_bot.bot_in_rooms()
