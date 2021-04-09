@@ -5,6 +5,7 @@ import requests
 import random
 import socket
 import threading
+import pickle
 
 app = Flask(__name__)
 api = Api(app)
@@ -30,11 +31,12 @@ def server():
         print("Connected")
 
 
-def notify(alert):
-    if alert:
-        msg = "Halloi"
+def notify(roomID):
+    if roomID:
+        room_name = rooms[roomID]['name']
+        response = {'msg' : f"Message received in {room_name}!", 'roomID' : roomID}
         for conn in connections:
-            conn.send(msg.encode("utf-8"))
+            conn.send(pickle.dumps(response))
 
 users = {
     1: {'name': "Bob"}
@@ -43,9 +45,9 @@ users = {
 # default chat rooms, new rooms are appended to this dictionary
 rooms = {
     1: {'name': "General", 'users': [], 'messages': []},
-    2: {'name': "Kosegruppa", 'users': [], 'messages': []},
-    3: {'name': "Lørdagspils", 'users': [], 'messages': []},
-    4: {'name': "Breakoutroom", 'users': [], 'messages': []}
+    #2: {'name': "Kosegruppa", 'users': [], 'messages': []},
+    #3: {'name': "Lørdagspils", 'users': [], 'messages': []},
+    #4: {'name': "Breakoutroom", 'users': [], 'messages': []}
     }
 
 
@@ -207,8 +209,7 @@ class Messages(Resource):
         rooms[roomID]['messages'].append(msg)
 
         #Notify client when a messages is received in room 
-        alert = "string"
-        notify(alert)
+        notify(roomID)
 
         return {"status": 401, "message": "Message sent"}
 

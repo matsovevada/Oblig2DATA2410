@@ -1,5 +1,6 @@
 import library as lib
 import random
+import time
 
 
 class Bots:
@@ -39,6 +40,7 @@ class Bots:
         room_name = room['Room name']
         print(f"Joined room with name {room_name}")
 
+        
     # Iterates over all chatrooms and finds rooms where the bot is present, returns list of roomID(s)
     def bot_in_rooms(self):
         bot_in_rooms_list = []
@@ -79,12 +81,15 @@ class Bots:
             self.last_msgIDs[roomID] = len(messages)
 
 
-class Per (Bots):
+class Per(Bots):
+
     def start(self):
-        print('here')
         self.register()
-        print('here2')
         self.join_room()
-        print('here3')
         self.send_message('Skjera bagera?')
-        print('here4')
+        time.sleep(4)
+        self.send_message('Skjera bagera?')
+
+
+
+
