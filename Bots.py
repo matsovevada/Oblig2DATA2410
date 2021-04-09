@@ -125,6 +125,24 @@ class Quiz_master(Bots):
 class Haarek(Bots):
 
     def start(self):
+        self.QnA = {
+        1 : "Thats got to be 365 days, unless it's a leap year ;)",
+        2 : "Ankara!",
+        3 : "In Canada? This is hard.. Im guessing Vancouver!",
+        4 : "Glomma ofcourse!",
+        5 : "First olympic games? Qatar!",
+        6 : "Soccer? Boooring! Red Devils probably has red shirts, Im guessing Brann from Bergen",
+        7 : "Peaky Blinders! You what mate?",
+        8 : "Easy! Bergen!",
+        9 : "Tinder? Or maybe covid had some impact on it's popularity? Im guessing Tinder",
+        10 : "Mother russia!",
+        11 : "Roald Amundsen was norwegian!",
+        12 : "Triple strike! Easy :)",
+        13 : "Condoleezza Rice, duuh!",
+        14 : "Genie in a Bottle! Cause im a geeeenie in a booootle!",
+        15 : "Bavid Dowie!"
+        }
+
         self.join_room()
         time.sleep(3)
         self.send_message('Ingenting tingeling')
@@ -133,6 +151,24 @@ class Haarek(Bots):
 class Alfred(Bots):
 
     def start(self):
+        self.QnA = {
+        1 : "365!",
+        2 : "Constantinople! Im a big history buff so that was easy",
+        3 : "Washington!",
+        4 : "Longest river..? Danube? Doesn't it go across most of Europe? Probably danube",
+        5 : "Athens! History is easy, bring on some diffcult questions Mr. Quizmaster!",
+        6 : "Ouugh, soccer? Really. Who cares? Soccer-Team Red Devils FC is my answer!",
+        7 : "Ohhh, I know this! Everybody was talking about the one about the meltdown in the nuclear power-plant! Was it called Chernobyl?",
+        8 : "Oslo! Come on Mr. Quizmaster, challenge me. I live in Oslo..",
+        9 : "Probably that smittesporing-app!",
+        10 : "What do you mean by largest? By population? By area? By average BMI? If you are looking for largest as in area its Russia. You have to be more precise in your wording!",
+        11 : "Roald was actually a close friend of my great-great-uncle and both were norwegian!",
+        12 : "Wait! I think I know the answer. Its the same as a name of a bird.. I think its called 'a rooster'!",
+        13 : "Sarah Palin!",
+        14 : "How cares? I don't like pop music! Im guessing Barbie Girl!",
+        15 : "What? This is a trick question! His name was David Bowie"
+        }
+
         self.join_room()
         time.sleep(4)
         self.send_message('Hallo baloo!')
@@ -141,6 +177,24 @@ class Alfred(Bots):
 class Tor(Bots):
 
     def start(self):
+        self.QnA = {
+        1 : "Hmm, theres 12 months in a year, and around 30 days in a month. 30 divided by 12 is around 2. Its got to be 2 days",
+        2 : "Istanbul city probably!",
+        3 : "Tricky question! Im guessing Ottawa!",
+        4 : "Amazon (the river)!",
+        5 : "It was held in Athens",
+        6 : "Glory, glory Man United!",
+        7 : "I remember that there was a big hype around Stranger Things! That's my guess",
+        8 : "Oslo!",
+        9 : "Tik tok!",
+        10 : "Largest? Australia!",
+        11 : "Roald? Probably danish!",
+        12 : "Im a bowler! Never acheived a turkey yet tho. Turkey is my answer",
+        13 : "Mike Pence!",
+        14 : "Leave Britney alone! Ohh, hit me baby one more time!",
+        15 : "David Bowie? Legend! His birth name was actually David Jones! "
+        }
+
         self.join_room()
         time.sleep(5)
         self.send_message('Jeg liker biler!')
