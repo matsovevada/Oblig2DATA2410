@@ -56,10 +56,10 @@ users = {
 
 # default chat rooms, new rooms are appended to this dictionary
 rooms = {
-    1: {'name': "General", 'users': [], 'messages': []},
-    2: {'name': "Kosegruppa", 'users': [], 'messages': []},
+   # 1: {'name': "General", 'users': [], 'messages': []},
+   # 2: {'name': "Kosegruppa", 'users': [], 'messages': []},
     3: {'name': "Lørdagspils", 'users': [], 'messages': []},
-    4: {'name': "Breakoutroom", 'users': [], 'messages': []}
+   # 4: {'name': "Breakoutroom", 'users': [], 'messages': []}
     }
 
 
@@ -110,7 +110,7 @@ class User(Resource):
     def post(self):
         name = request.json['name']
 
-        if name == 'Quiz-master':
+        if name == 'Quizmaster':
             userID = 1
         
         else:

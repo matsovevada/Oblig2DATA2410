@@ -29,11 +29,10 @@ active_bot = None
 if bot == 'Per':
     per = Bots.Per('Per')
     active_bot = per
-elif bot == 'Quiz-master':
-    quiz_master = Bots.Quiz_master('Quiz-master')
+
+elif bot == 'Quizmaster':
+    quiz_master = Bots.Quiz_master('Quizmaster')
     active_bot = quiz_master
-else:
-    print(f"{bot} is not a valid choice, please choose between the following bots: Per, Quiz-master")
 
 elif bot == 'Haarek':
     haarek = Bots.Haarek('Hårek')
@@ -47,14 +46,42 @@ elif bot == 'Tor':
     tor = Bots.Tor('Tor')
     active_bot = tor
 
+else:
+    print(f"{bot} is not a valid choice, please choose between the following bots: Per, Quiz-master")
+    os._exit(1)
+
 
 def receive():
     while True:
         data = client.recv(1024)
         if data:
             data_loaded = pickle.loads(data)
-            print(data_loaded['msg'])
-            active_bot.get_messages_in_room(data_loaded['roomID'])
+            alert = data_loaded['msg']
+            print(alert)
+            msg = active_bot.get_messages_in_room(data_loaded['roomID'])
+            msg_split = msg.split(" ")
+            #Room: 1 , 1: @ 11 Which nationality was the polar explorer Roald Amundsen?
+            if msg_split[4] == "@":
+                q_number = msg_split[5]
+
+                #Formatting msg for terminal, removes "@" and q-number from string
+                msg_split.pop(4)
+                msg_split.pop(4)
+                #['Room:', '4', ',', '1:', '13', 'was', 'Donald', "Trump's", 'vice', 'president?']
+                msg_output = ""
+                for word in msg_split:
+                    msg_output += word + " "
+
+                print(msg_output)
+                active_bot.send_message(active_bot.QnA[int(q_number)])
+
+            else:
+                print(msg)
+
+
+            
+
+            
 
 
 if args.notifications:

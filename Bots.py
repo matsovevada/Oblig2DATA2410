@@ -56,29 +56,36 @@ class Bots:
         roomID_list = self.bot_in_rooms()
         target_roomID = random.choice(roomID_list)
         lib.send_message(self.id, target_roomID, msg)
+        print(msg)
 
     # Get messages in room, last_msgID makes sure only new messages are printed to the client  
     def get_messages_in_room(self, roomID):
-        messages = lib.get_messages_in_room(self.id, roomID)['All messages:']
-
-        if roomID in self.last_msgIDs:
-            counter = self.last_msgIDs[roomID]
-            for message in messages:
-                if counter < message['msgID']:
-                    userID = message['userID']
-                    msg = message['msg_content']
-                    print(f"Room: {roomID} , {userID}: {msg}")
-                    counter = counter+1
+       # messages = lib.get_messages_in_room(self.id, roomID)['All messages:']
+       # unread_messages = {}
+      # if roomID in self.last_msgIDs:
+       #     counter = self.last_msgIDs[roomID]
+        #    for message in messages:
+         #       if counter < message['msgID']:
+          #          userID = message['userID']
+           #         msg = message['msg_content']
+                    
+            #        counter = counter+1
+             #       return f"Room: {roomID} , {userID}: {msg}"
             
-            self.last_msgIDs[roomID] = counter
+           # self.last_msgIDs[roomID] = counter
 
-        else:
-            for message in messages:
-                userID = message['userID']
-                msg = message['msg_content']
-                print(f"Room: {roomID} , {userID}: {msg}")
+        messages = lib.get_messages_in_room(self.id, roomID)['All messages:']
+        #if roomID in self.last_msgIDs:
+           # for message in messages:
 
-            self.last_msgIDs[roomID] = len(messages)
+        msg = messages[len(messages)-1]
+        userID = msg['userID']
+        msg_content = msg['msg_content']
+        return (f"Room: {roomID} , {userID}: {msg_content}")
+                # print()
+                # return msg
+
+         #   self.last_msgIDs[roomID] = len(messages)
 
 
 class Per(Bots):
@@ -113,12 +120,14 @@ class Quiz_master(Bots):
           
         # send a message to all rooms every 5th second
         while True:
-            time.sleep(5)
+            time.sleep(10)
             rooms = lib.get_all_rooms(self.id)['rooms']
 
             for roomID, room in rooms.items():
                 if len(room['users']) > 0: # only send to rooms with users
-                    question = random.choice(self.QnA)
+                    q_number = random.randint(1,15)
+                    question = "@ " + str(q_number) + " " + self.QnA[q_number]
+                    print(question)
                     lib.send_message(self.id, roomID, question)
 
 
@@ -196,5 +205,4 @@ class Tor(Bots):
         }
 
         self.join_room()
-        time.sleep(5)
-        self.send_message('Jeg liker biler!')
+    
