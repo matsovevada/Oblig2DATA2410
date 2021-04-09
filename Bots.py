@@ -24,10 +24,12 @@ class Bots:
         # check that the room name isn't in use
         # rooms = lib.get_all_rooms(self.id)['rooms']
         rooms = lib.get_all_rooms(self.id)['rooms']
-
         for room in rooms:
+            print('here2')
             if room['name'] == room_name:
+                print('here3')
                 room_name = f"{room_name} #{random.randint(1,10000)}"
+                print('here4')
                 break
         
         lib.create_room(self.id, room_name)
@@ -40,7 +42,6 @@ class Bots:
         room_name = room['Room name']
         print(f"Joined room with name {room_name}")
 
-        
     # Iterates over all chatrooms and finds rooms where the bot is present, returns list of roomID(s)
     def bot_in_rooms(self):
         bot_in_rooms_list = []
@@ -84,10 +85,31 @@ class Bots:
 class Per(Bots):
 
     def start(self):
+        self.create_room()
         self.join_room()
-        time.sleep(6)
+        time.sleep(2)
         self.send_message('Skjera bagera?')
 
 
+class Haarek(Bots):
+
+    def start(self):
+        self.join_room()
+        time.sleep(3)
+        self.send_message('Ingenting tingeling')
 
 
+class Alfred(Bots):
+
+    def start(self):
+        self.join_room()
+        time.sleep(4)
+        self.send_message('Hallo baloo!')
+
+
+class Tor(Bots):
+
+    def start(self):
+        self.join_room()
+        time.sleep(5)
+        self.send_message('Jeg liker biler!')

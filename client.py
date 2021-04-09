@@ -13,7 +13,7 @@ import pickle
 # connect to server
 
 parser = argparse.ArgumentParser()
-parser.add_argument("Bot", help="Available bots: Per, Alice, Chuck, Bob or Dora")
+parser.add_argument("Bot", help="Available bots: Quizmaster, Per, Haarek, Alfred, Tor")
 parser.add_argument("-n", "--notifications", action="store_true", help="To enable notifications")
 
 args = parser.parse_args()
@@ -25,19 +25,21 @@ bot = args.Bot
 active_bot = None
 
 
-
-
-parser = argparse.ArgumentParser()
-parser.add_argument("Bot", help="Available bots: Lars, Alice, Chuck, Bob or Dora")
-parser.add_argument("-n", "--notifications", action="store_true", help="To enable notifications")
-
-
-args = parser.parse_args()
-
 if bot == 'Per':
     per = Bots.Per('Per')
     active_bot = per
 
+elif bot == 'Haarek':
+    haarek = Bots.Haarek('Hårek')
+    active_bot = haarek
+
+elif bot == 'Alfred':
+    alfred = Bots.Alfred('Alfred')
+    active_bot = alfred
+
+elif bot == 'Tor':
+    tor = Bots.Tor('Tor')
+    active_bot = tor
 
 
 def receive():
@@ -47,6 +49,7 @@ def receive():
             data_loaded = pickle.loads(data)
             print(data_loaded['msg'])
             active_bot.get_messages_in_room(data_loaded['roomID'])
+
 
 if args.notifications:
     
@@ -70,10 +73,6 @@ else:
         active_rooms = active_bot.bot_in_rooms()
         for room in active_rooms:
             active_bot.get_messages_in_room(room)
-        
-        
-        
-
 
 # lytt til notif
 # reager på data -> bot 

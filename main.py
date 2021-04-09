@@ -58,8 +58,8 @@ users = {
 rooms = {
     1: {'name': "General", 'users': [], 'messages': []},
     2: {'name': "Kosegruppa", 'users': [], 'messages': []},
-    #3: {'name': "Lørdagspils", 'users': [], 'messages': []},
-    #4: {'name': "Breakoutroom", 'users': [], 'messages': []}
+    3: {'name': "Lørdagspils", 'users': [], 'messages': []},
+    4: {'name': "Breakoutroom", 'users': [], 'messages': []}
     }
 
 
@@ -236,4 +236,3 @@ if __name__ == "__main__":
     thread.start()
 
     app.run(debug=False)    
-   
