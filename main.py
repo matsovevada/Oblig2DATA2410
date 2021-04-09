@@ -21,7 +21,6 @@ def server():
     print("SERVER LISTENING...")
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
     server.bind(ADDR)
 
     while True:
@@ -36,10 +35,6 @@ def notify(alert):
         msg = "Halloi"
         for conn in connections:
             conn.send(msg.encode("utf-8"))
-
-
-thread = threading.Thread(target=server)
-thread.start()
 
 users = {
     1: {'name': "Bob"}
@@ -218,11 +213,16 @@ class Messages(Resource):
         return {"status": 401, "message": "Message sent"}
 
 
-api.add_resource(User, "/api/users", "/api/users/<int:target_userID>")
-api.add_resource(Chat_room, "/api/rooms", "/api/rooms/<int:roomID>")
-api.add_resource(Chat_room_users, "/api/rooms/<int:roomID>/users")
-api.add_resource(Messages, "/api/rooms/<int:roomID>/messages",
-                 "/api/rooms/<int:roomID>/<int:target_userID>/messages")
-
 if __name__ == "__main__":
-    app.run(debug=True)
+    
+    api.add_resource(User, "/api/users", "/api/users/<int:target_userID>")
+    api.add_resource(Chat_room, "/api/rooms", "/api/rooms/<int:roomID>")
+    api.add_resource(Chat_room_users, "/api/rooms/<int:roomID>/users")
+    api.add_resource(Messages, "/api/rooms/<int:roomID>/messages",
+                    "/api/rooms/<int:roomID>/<int:target_userID>/messages")
+
+    thread = threading.Thread(target=server)
+    thread.start()
+
+    app.run(debug=False)    
+   
