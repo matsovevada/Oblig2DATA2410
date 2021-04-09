@@ -1,16 +1,17 @@
 import library as lib
 import random
 
-class Test_bot:
-    def __init__(self):
-        self.name = "Test bot"
+
+class Bots:
+    def __init__(self, name):
+        self.name = name
         self.id = None
         self.last_msgIDs = {}
 
     def register(self):
         response = lib.register_user(self.name)
         id = response['userID']
-        bot.id = id
+        self.id = id
         print(f"User registered with name {self.name} and ID {id}")
         return id
 
@@ -38,11 +39,6 @@ class Test_bot:
         room_name = room['Room name']
         print(f"Joined room with name {room_name}")
 
-    def bot_message(self):
-        return "Halloi"
-
-
-    
     # Iterates over all chatrooms and finds rooms where the bot is present, returns list of roomID(s)
     def bot_in_rooms(self):
         bot_in_rooms_list = []
@@ -54,8 +50,7 @@ class Test_bot:
         return bot_in_rooms_list
 
     # Send message to random room where the bot is present
-    def send_message(self):
-        msg = self.bot_message()
+    def send_message(self, msg):
         roomID_list = self.bot_in_rooms()
         target_roomID = random.choice(roomID_list)
         lib.send_message(self.id, target_roomID, msg)
@@ -82,84 +77,14 @@ class Test_bot:
                 print(f"Room: {roomID} , {userID}: {msg}")
 
             self.last_msgIDs[roomID] = len(messages)
-            
-
-                    
 
 
-        
-
-
-    def main_function(self):
-        # # Create user
-        # print('Create user:')
-        # response = lib.register_user(self.name)
-        # self.id = response['userID']
-        # print(response)
-
-        # # Create room
-        # print('Create room:')
-        # room_name = "Rom"
-        # print(lib.create_room(self.id, room_name))
-
-        # # Join room
-        # print('Join room:')
-        # rooms = lib.get_all_rooms(self.id)['rooms']
-        # roomID = random.choice(list(rooms.keys()))
-        # print(lib.join_room(self.id, roomID))
-       
-        # Get user and user msg
-        print('Get user and user msg:')
-        room_users = lib.get_all_users_in_room(self.id, roomID)['Room users']
-        random_user_in_room = random.choice(room_users)
-        target_userID = random_user_in_room['userID'] 
-
-        print(lib.get_messages_user(self.id, target_userID, roomID))
-
-
-        # Send msg
-        #print('Send msg:')
-        #msg = "Hello"
-        #print(lib.send_message(self.id, roomID, msg))
-
-
-        # Get room
-        print('Get room:')
-        rooms = lib.get_all_rooms(self.id)['rooms']
-        roomID = random.choice(list(rooms.keys()))
-        print(lib.get_room(self.id, roomID))
-
-        # Get all users
-        print('Get all users:')
-        print(lib.get_all_users(self.id))
-
-        # delete user
-        print('Delete user:')
-        print(lib.delete_user(1, self.id))
-
-        # delete all users
-        print('Delete all users:')
-        print(lib.delete_all_users(self.id))
-
-        # Get all users
-        print('Get all users:')
-        print(lib.get_all_users(self.id))
-
-
-bot = Test_bot()
-bot.register()
-#print(bot.id)
-#print(lib.get_all_users(bot.id))
-#bot.create_room()
-#bot.join_room()
-#bot.send_message()
-
-lib.join_room(bot.id, 1)
-bot.get_messages_in_room(1)
-lib.send_message(bot.id, 1, "Halloi")
-lib.send_message(bot.id, 1, "halloi")
-bot.get_messages_in_room(1)
-lib.send_message(bot.id, 1, "siste")
-bot.get_messages_in_room(1)
-
-
+class Per (Bots):
+    def start(self):
+        print('here')
+        self.register()
+        print('here2')
+        self.join_room()
+        print('here3')
+        self.send_message('Skjera bagera?')
+        print('here4')
