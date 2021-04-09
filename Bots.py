@@ -84,10 +84,8 @@ class Bots:
 class Per(Bots):
 
     def start(self):
-        self.register()
         self.join_room()
-        self.send_message('Skjera bagera?')
-        time.sleep(4)
+        time.sleep(6)
         self.send_message('Skjera bagera?')
 
 

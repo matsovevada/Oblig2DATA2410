@@ -46,7 +46,7 @@ def receive():
         if data:
             data_loaded = pickle.loads(data)
             print(data_loaded['msg'])
-            #active_bot.get_messages_in_room(data['roomID'])
+            active_bot.get_messages_in_room(data_loaded['roomID'])
 
 if args.notifications:
     
@@ -54,6 +54,8 @@ if args.notifications:
     print("[CONNECTING] Connecting to server...")
     try:
         client.connect(ADDR)
+        bot_id = active_bot.register()
+        client.send(str(bot_id).encode())
         active_bot.start()
         receive()
     except ConnectionRefusedError as e :
