@@ -52,7 +52,6 @@ def server():
 # function for posting notifications to the clients
 def notify(roomID, sender_id):
     if roomID:
-        print("got roomID")
         room_name = rooms[roomID]['name']
         response = {'msg' : f"Message received in {room_name}!", 'roomID' : roomID}
 
