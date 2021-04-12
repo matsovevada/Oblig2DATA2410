@@ -9,6 +9,8 @@ import argparse
 import pickle
 import library as lib
 
+## SERVER ##
+
 app = Flask(__name__)
 api = Api(app)
 
@@ -19,13 +21,15 @@ ADDR = (SERVER, PORT)
 
 connections = []
 
+users = {}
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--notifications", action="store_true", help="To enable notifications")
 
 args = parser.parse_args()
 
 
-
+# Function for starting the server
 def server():
     if args.notifications:
         print("SERVER LISTENING...")
@@ -33,6 +37,7 @@ def server():
         server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server.bind(ADDR)
 
+        # Listening for new connections while the server is up
         while True:
             server.listen()
             conn, addr = server.accept()
@@ -42,8 +47,9 @@ def server():
             connections.append((conn, int(bot_id)))
 
             print(f"Bot with ID {bot_id} Connected")
-        
-    
+
+
+# function for posting notifications to the clients
 def notify(roomID, sender_id):
     if roomID:
         print("got roomID")
@@ -57,8 +63,6 @@ def notify(roomID, sender_id):
                 for conn in connections:
                     if conn[1] == user['userID']:
                         conn[0].send(pickle.dumps(response))
-                        
-users = {}
 
 
 # default chat rooms, new rooms are appended to this dictionary
@@ -99,7 +103,7 @@ def user_in_room(roomID, userID):
 
     return user_in_room
 
-
+# All User-specific API routes
 class User(Resource):
 
     def get(self, target_userID=None):
@@ -119,15 +123,15 @@ class User(Resource):
 
         if name == 'Quizmaster':
             userID = 1
-        
+
         else:
             userID = random.randint(2,10000)
             while userID in users:
                 userID = random.randint(2,10000)
-        
+
         users[userID] = {'name' : name}
 
-        return {"status": 201, "message": "User successfully added", "user": users[userID], "userID": userID} 
+        return {"status": 201, "message": "User successfully added", "user": users[userID], "userID": userID}
 
     def delete(self, target_userID=None):
         global users
@@ -141,11 +145,11 @@ class User(Resource):
             return {"status": 410, "message": "User successfully deleted", "user" : user}
 
         # delete all users
-        else: 
+        else:
             users = {}
             return {"status": 410, "message": "All users successfully deleted"}
 
-
+# All chat-room specific API routes
 class Chat_room(Resource):
 
     def get(self, roomID=None):
@@ -173,13 +177,14 @@ class Chat_room(Resource):
         rooms[roomID] = {'name': name, 'users': users, 'messages': messages}
         return {'status': 201, 'message': "Room sucessfully created", 'room': roomID, 'name': name}
 
+# API routes for getting users in a chat-room
 class Chat_room_users(Resource):
-    
+
     # get all users in a room
     def get(self, roomID):
         userID = request.json['userID']
         abort_if_user_not_exists(userID)
-        abort_if_room_not_exists(roomID) 
+        abort_if_room_not_exists(roomID)
         return {"status": 200, "message": "OK", "Room users": rooms[roomID]['users']}
 
     def put(self, roomID):
@@ -188,12 +193,14 @@ class Chat_room_users(Resource):
         abort_if_user_not_exists(userID)
         if user_in_room(roomID, userID):
              abort(404, message="User is already in room")
-        
+
         user = users[userID]['name']
         rooms[roomID]['users'].append({'Username': user, 'userID' : userID})
         # rooms[roomID]['users'].append({'user': user})
         return {"status": 200, "message": "Successfully added user to room " + rooms[roomID]['name'], "Room users": rooms[roomID]['users'], "Room name": rooms[roomID]['name']}
 
+
+# Message specific API routes
 class Messages(Resource):
 
     # Gets messsages from user if userID is defined, gets all messages if not defined 
@@ -232,14 +239,14 @@ class Messages(Resource):
         msg = {'userID' : userID, 'msg_content' : request.json['msg'], 'msgID' : msgID}
         rooms[roomID]['messages'].append(msg)
 
-        #Notify client when a messages is received in room 
+        #Notify client when a messages is received in room
         notify(roomID, userID)
 
         return {"status": 401, "message": "Message sent"}
 
 
 if __name__ == "__main__":
-    
+
     api.add_resource(User, "/api/users", "/api/users/<int:target_userID>")
     api.add_resource(Chat_room, "/api/rooms", "/api/rooms/<int:roomID>")
     api.add_resource(Chat_room_users, "/api/rooms/<int:roomID>/users")
@@ -249,4 +256,4 @@ if __name__ == "__main__":
     thread = threading.Thread(target=server)
     thread.start()
 
-    app.run(debug=False)    
+    app.run(debug=False)

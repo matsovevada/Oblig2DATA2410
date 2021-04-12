@@ -9,10 +9,6 @@ import library as lib
 
 ## CLIENT ## 
 
-# parser, velg bot
-# start bot
-
-# connect to server
 
 parser = argparse.ArgumentParser()
 parser.add_argument("Bot", help="Available bots: Quizmaster, Per, Haarek, Alfred, Tor")
@@ -26,7 +22,7 @@ ADDR = (SERVER, PORT)
 bot = args.Bot
 active_bot = None
 
-
+# Checks which bot the user chose when launching the client
 if bot == 'Per':
     per = Bots.Per('Per')
     active_bot = per
@@ -48,21 +44,21 @@ elif bot == 'Tor':
     active_bot = tor
 
 else:
-    print(f"{bot} is not a valid choice, please choose between the following bots: Per, Quiz-master")
+    print(f"{bot} is not a valid choice, please choose between the following bots: Per, Quizmaster, Haarek, Tor, Alfred")
     os._exit(1)
 
+
+# Formatting messages recieved from the quizmaster and rersponds to them
 def respond(messages, roomID):
     if messages:
         for message in messages:
             msg_split = message.split(" ")
-            #Room: 1 , 1: @ 11 Which nationality was the polar explorer Roald Amundsen?
             if msg_split[2] == "@":
                 q_number = msg_split[3]
 
                 #Formatting msg for terminal, removes "@" and q-number from string
                 msg_split.pop(2)
                 msg_split.pop(2)
-                #['Room:', '4', ',', '1:', '13', 'was', 'Donald', "Trump's", 'vice', 'president?']
                 msg_output = ""
                 for word in msg_split:
                     msg_output += word + " "
@@ -73,6 +69,7 @@ def respond(messages, roomID):
             else:
                 print(message)
 
+# Recieves messages from the server
 def receive():
     while True:
         data = client.recv(1024)
@@ -84,6 +81,7 @@ def receive():
             respond(messages, data_loaded['roomID'] )
 
 
+# Enables notifications if -n was input into the terminal
 if args.notifications:
     
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -95,20 +93,20 @@ if args.notifications:
         thread = threading.Thread(target=active_bot.start)
         thread.start()
         receive()
-    except ConnectionRefusedError as e :
+    except ConnectionRefusedError as e:
         print("[ERROR] Failed to connect to server: " + str(e))
         os._exit(1)
 
 
+# Disabled notifications
 else: 
     thread = threading.Thread(target=active_bot.start)
     active_bot.register()
     thread.start()
     if active_bot.id != 1:     #Makes sure that Quizmaster does not respond the messages
         while True:
-            time.sleep(1)
+            time.sleep(3)
             active_rooms = active_bot.get_all_rooms()
             for room in active_rooms:
                 unread_messages = active_bot.get_messages_in_room(room, active_bot.id)
                 respond(unread_messages, room)
-        

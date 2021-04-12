@@ -4,9 +4,8 @@ import json
 
 BASE = "http://127.0.0.1:5000/"
 
+
 #USER
-
-
 # get a specific user
 def get_specific_user(target_userID, userID):
     response = requests.get(BASE + f"api/users/{target_userID}", json={'userID': userID})
@@ -17,7 +16,6 @@ def get_specific_user(target_userID, userID):
 def get_all_users(userID):
     response = requests.get(BASE + "api/users", json={'userID': userID})
     return response.json()
-
 
 
 # register user
@@ -37,9 +35,8 @@ def delete_all_users(userID):
     response = requests.delete(BASE + "api/users", json={'userID': userID})
     return response.json()
 
+
 # CHAT_ROOM
-
-
 # get a specific chat room
 def get_room(userID, roomID):
     response = requests.get(BASE + f"api/rooms/{roomID}", json={'userID': userID})
@@ -57,9 +54,8 @@ def create_room(userID, name):
     response = requests.post(BASE + "api/rooms", json={'name': name, 'userID': userID})
     return response.json()
 
+
 # CHAT_ROOM_USERS
-
-
 # join a room
 def join_room(userID, roomID):
     response = requests.put(BASE + f"api/rooms/{roomID}/users", json={'userID': userID})
@@ -73,7 +69,6 @@ def get_all_users_in_room(userID, roomID):
 
 
 # MESSAGES
-
 # Get messsages from a speific user in a specific room
 def get_messages_user(userID, target_userID, roomID):
     response = requests.get(BASE + f"api/rooms/{roomID}/{target_userID}/messages", json={'userID': userID})
