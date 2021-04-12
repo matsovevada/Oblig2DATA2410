@@ -50,6 +50,26 @@ else:
     print(f"{bot} is not a valid choice, please choose between the following bots: Per, Quiz-master")
     os._exit(1)
 
+def respond(messages):
+    for message in messages:
+        msg_split = message.split(" ")
+        #Room: 1 , 1: @ 11 Which nationality was the polar explorer Roald Amundsen?
+        if msg_split[4] == "@":
+            q_number = msg_split[5]
+
+            #Formatting msg for terminal, removes "@" and q-number from string
+            msg_split.pop(4)
+            msg_split.pop(4)
+            #['Room:', '4', ',', '1:', '13', 'was', 'Donald', "Trump's", 'vice', 'president?']
+            msg_output = ""
+            for word in msg_split:
+                msg_output += word + " "
+
+            print(msg_output)
+            active_bot.send_message(active_bot.QnA[int(q_number)])
+
+        else:
+            print(message)
 
 def receive():
     while True:
@@ -58,30 +78,8 @@ def receive():
             data_loaded = pickle.loads(data)
             alert = data_loaded['msg']
             print(alert)
-            msg = active_bot.get_messages_in_room(data_loaded['roomID'])
-            msg_split = msg.split(" ")
-            #Room: 1 , 1: @ 11 Which nationality was the polar explorer Roald Amundsen?
-            if msg_split[4] == "@":
-                q_number = msg_split[5]
-
-                #Formatting msg for terminal, removes "@" and q-number from string
-                msg_split.pop(4)
-                msg_split.pop(4)
-                #['Room:', '4', ',', '1:', '13', 'was', 'Donald', "Trump's", 'vice', 'president?']
-                msg_output = ""
-                for word in msg_split:
-                    msg_output += word + " "
-
-                print(msg_output)
-                active_bot.send_message(active_bot.QnA[int(q_number)])
-
-            else:
-                print(msg)
-
-
-            
-
-            
+            messages = active_bot.get_messages_in_room(data_loaded['roomID'])
+            respond(messages)
 
 
 if args.notifications:
@@ -102,13 +100,12 @@ if args.notifications:
 
 else: 
     thread = threading.Thread(target=active_bot.start)
+    active_bot.register()
     thread.start()
     while True:
-        time.sleep(10)
-        active_rooms = active_bot.bot_in_rooms()
+        time.sleep(6)
+        active_rooms = active_bot.get_all_rooms()
         for room in active_rooms:
-            active_bot.get_messages_in_room(room)
-
-# lytt til notif
-# reager på data -> bot 
-
+            unread_messages = active_bot.get_messages_in_room(room, active_bot.id)
+            if (unread_messages): respond(unread_messages)
+        

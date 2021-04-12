@@ -38,8 +38,17 @@ class Bots:
         rooms = lib.get_all_rooms(self.id)['rooms']
         roomID = random.choice(list(rooms.keys()))
         room = lib.join_room(self.id, roomID)
+
+        # update last_msgIDs
+        messages_in_room = lib.get_messages_in_room(self.id, roomID)['All messages:']
+        if (messages_in_room):
+            self.last_msgIDs[roomID] = messages_in_room[-1]['msgID']
+
         room_name = room['Room name']
         print(f"Joined room with name {room_name}")
+
+    def get_all_rooms(self):
+        return self.bot_in_rooms()
 
     # Iterates over all chatrooms and finds rooms where the bot is present, returns list of roomID(s)
     def bot_in_rooms(self):
@@ -59,34 +68,37 @@ class Bots:
         print(msg)
 
     # Get messages in room, last_msgID makes sure only new messages are printed to the client  
-    def get_messages_in_room(self, roomID):
-       # messages = lib.get_messages_in_room(self.id, roomID)['All messages:']
-       # unread_messages = {}
-      # if roomID in self.last_msgIDs:
-       #     counter = self.last_msgIDs[roomID]
-        #    for message in messages:
-         #       if counter < message['msgID']:
-          #          userID = message['userID']
-           #         msg = message['msg_content']
-                    
-            #        counter = counter+1
-             #       return f"Room: {roomID} , {userID}: {msg}"
-            
-           # self.last_msgIDs[roomID] = counter
+    def get_messages_in_room(self, roomID, sender_userID=None):
 
         messages = lib.get_messages_in_room(self.id, roomID)['All messages:']
-        #if roomID in self.last_msgIDs:
-           # for message in messages:
+        
+        
+        if messages:
 
-        msg = messages[len(messages)-1]
-        userID = msg['userID']
-        msg_content = msg['msg_content']
-        return (f"Room: {roomID} , {userID}: {msg_content}")
-                # print()
-                # return msg
+            if self.last_msgIDs.get(roomID) != messages[len(messages)-1]['msgID']: # checks if the bot has unread messages in the room
 
-         #   self.last_msgIDs[roomID] = len(messages)
+                unread_messages =  []
 
+                if (self.last_msgIDs.get(roomID) is None): counter = messages[len(messages)-1]['msgID']
+                else: counter = self.last_msgIDs[roomID]
+
+                for message in messages:
+                    if counter <= message['msgID']:
+                        userID = message['userID']
+                        msg = message['msg_content']
+                            
+                        counter = counter+1
+
+                        if (sender_userID): # if sender_userID is supplied, don't include messages from the bot itself
+                            if (userID != sender_userID): unread_messages.append(f"Room: {roomID} , {userID}: {msg}")
+                        else:
+                            unread_messages.append(f"Room: {roomID} , {userID}: {msg}")
+
+                self.last_msgIDs[roomID] = counter
+                return unread_messages
+
+        else: return None
+       
 
 class Per(Bots):
 
