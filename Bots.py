@@ -9,6 +9,7 @@ class Bots:
         self.id = None
         self.last_msgIDs = {}
         self.QnA = None
+        self.bot_sleep = None
 
     def register(self):
         response = lib.register_user(self.name)
@@ -18,7 +19,7 @@ class Bots:
         return id
 
     def create_room(self):
-        room_names = ['Kollokvie', 'Just chatting', 'Seminar', 'Secret room', 'The room', 'The chat', 'TechChat', 'AllChat', 'TeamRoom', 'LocalChat']
+        room_names = ['Kollokvie', 'JustChatting', 'Seminar', 'SecretRoom', 'TheRoom', 'TheChat', 'TechChat', 'AllChat', 'TeamRoom', 'LocalChat']
        
         room_name = random.choice(room_names)
         
@@ -28,25 +29,37 @@ class Bots:
 
         for roomID, room in rooms.items():
             if room['name'] == room_name:
-                room_name = f"{room_name} #{random.randint(1,10000)}"
+                room_name = f"{room_name}#{random.randint(1,10000)}"
                 break
         
         lib.create_room(self.id, room_name)
-        print(f"Room created with name {room_name}")
+        print(f"{self.name} created room {room_name}")
 
     def join_room(self):
         rooms = lib.get_all_rooms(self.id)['rooms']
+
         roomID = random.choice(list(rooms.keys()))
+        break_counter = 0
+        print("RoomID: " + roomID)
+        while roomID in self.bot_in_rooms():
+            if break_counter > 20:    # abort if a suitable room is not found in 20 tries
+                return
+
+            roomID = random.choice(list(rooms.keys()))
+            break_counter = break_counter + 1
+            
+            
+        print("RoomID ALT: " + roomID)
+
+        room_list = self.bot_in_rooms()
         room = lib.join_room(self.id, roomID)
-
-        # update last_msgIDs
-        messages_in_room = lib.get_messages_in_room(self.id, roomID)['All messages:']
-        if (messages_in_room):
-            self.last_msgIDs[roomID] = messages_in_room[-1]['msgID']
-
-        room_name = room['Room name']
+        room_name = room.get('Room name')
+        print("Roomname: " + room_name)
         print(f"Joined room with name {room_name}")
-
+        messages_in_room = lib.get_messages_in_room(self.id, roomID)['All messages:'] # update last_msgIDs
+        if (messages_in_room):
+            self.last_msgIDs[roomID] = messages_in_room[-1]['msgID']  
+    
     def get_all_rooms(self):
         return self.bot_in_rooms()
 
@@ -61,16 +74,17 @@ class Bots:
         return bot_in_rooms_list
 
     # Send message to random room where the bot is present
-    def send_message(self, msg):
-        roomID_list = self.bot_in_rooms()
-        target_roomID = random.choice(roomID_list)
-        lib.send_message(self.id, target_roomID, msg)
-        print(msg)
+    def send_message(self, msg, roomID):
+        time.sleep(self.bot_sleep) # sleep-interval different for each bot 
+        lib.send_message(self.id, roomID, msg)
+        msg_formated = "[" + lib.get_room(self.id, roomID)['room']['name'] +  "] Me: " + msg
+        print(msg_formated)
 
     # Get messages in room, last_msgID makes sure only new messages are printed to the client  
     def get_messages_in_room(self, roomID, sender_userID=None):
 
         messages = lib.get_messages_in_room(self.id, roomID)['All messages:']
+        room_name = lib.get_room(self.id, roomID)['room']['name']
         
         
         if messages:
@@ -85,14 +99,16 @@ class Bots:
                 for message in messages:
                     if counter <= message['msgID']:
                         userID = message['userID']
-                        msg = message['msg_content']
+                        msg_content = message['msg_content']
+                        username = lib.get_specific_user(userID, self.id)['user']['name']
+                        msg = f"[{room_name}] {username}: " + msg_content
                             
                         counter = counter+1
 
                         if (sender_userID): # if sender_userID is supplied, don't include messages from the bot itself
-                            if (userID != sender_userID): unread_messages.append(f"Room: {roomID} , {userID}: {msg}")
+                            if (userID != sender_userID): unread_messages.append(msg)
                         else:
-                            unread_messages.append(f"Room: {roomID} , {userID}: {msg}")
+                            unread_messages.append(msg)
 
                 self.last_msgIDs[roomID] = counter
                 return unread_messages
@@ -100,17 +116,12 @@ class Bots:
         else: return None
        
 
-class Per(Bots):
-
-    def start(self):
-        self.create_room()
-        self.join_room()
-        time.sleep(2)
-        self.send_message('Skjera bagera?')
 
 class Quiz_master(Bots):
     
     def start(self):
+
+        self.bot_sleep = 20
 
         self.QnA = { 
             1 : "How many days does it take for the Earth to orbit the Sun?", 
@@ -121,7 +132,7 @@ class Quiz_master(Bots):
             6 : "Which football team is known as ‘The Red Devils’?",
             7 : "What was the most-watched series on Netflix in 2019?",
             8 : "What is the capital of Norway?",
-            9 : "What was the downloaded app in 2020?",
+            9 : "What was the most downloaded app in 2020?",
             10 : "What is the largest country in the world?",
             11 : "Which nationality was the polar explorer Roald Amundsen?",
             12 : "In bowling, what is the term given for three consecutive strikes?",
@@ -130,22 +141,61 @@ class Quiz_master(Bots):
             15 : "What is David Bowie’s real name?"
         }
           
-        # send a message to all rooms every 5th second
+        # send a message to all rooms on specified interval
         while True:
-            time.sleep(10)
+            time.sleep(self.bot_sleep)
             rooms = lib.get_all_rooms(self.id)['rooms']
-
-            for roomID, room in rooms.items():
+            room_list = list(rooms.items())
+            random.shuffle(room_list)
+            for roomID, room in room_list:  #selected random room
                 if len(room['users']) > 0: # only send to rooms with users
                     q_number = random.randint(1,15)
                     question = "@ " + str(q_number) + " " + self.QnA[q_number]
                     print(question)
-                    lib.send_message(self.id, roomID, question)
+                    target_room = roomID
+                    lib.send_message(self.id, target_room, question)
+                    break
+                    
+          
 
+class Per(Bots):
+
+    
+    def start(self):
+        self.bot_sleep = 7
+
+        self.QnA = {
+        1 : "Over 9000!",
+        2 : "Capital? Trick question! It has always been named Istanbul",
+        3 : "",
+        4 : "Glomma ofcourse!",
+        5 : "First olympic games? Qatar!",
+        6 : "Soccer? Boooring! Red Devils probably has red shirts, Im guessing Brann from Bergen",
+        7 : "Peaky Blinders! You what mate?",
+        8 : "Easy! Bergen!",
+        9 : "Tinder? Or maybe covid had some impact on it's popularity? Im guessing Tinder",
+        10 : "Mother russia!",
+        11 : "Roald Amundsen was norwegian!",
+        12 : "Triple strike! Easy :)",
+        13 : "Condoleezza Rice, duuh!",
+        14 : "Genie in a Bottle! Cause im a geeeenie in a booootle!",
+        15 : "Bavid Dowie!"
+        }
+        self.join_room()
+
+        while True:
+            time.sleep(10)
+            decide_action = random.randint(1,100)
+
+            if decide_action in range(11,20):
+                self.join_room()  
 
 class Haarek(Bots):
 
+
     def start(self):
+        self.bot_sleep = 8
+        
         self.QnA = {
         1 : "Thats got to be 365 days, unless it's a leap year ;)",
         2 : "Ankara!",
@@ -165,13 +215,23 @@ class Haarek(Bots):
         }
 
         self.join_room()
-        time.sleep(3)
-        self.send_message('Ingenting tingeling')
+        
+        while True:
+            time.sleep(10)
+            decide_action = random.randint(1,100)
+            if decide_action in range(1,11):
+                self.create_room()
+
+            if decide_action in range(11,20):
+                self.join_room()        
 
 
 class Alfred(Bots):
 
     def start(self):
+
+        self.bot_sleep = 4
+
         self.QnA = {
         1 : "365!",
         2 : "Constantinople! Im a big history buff so that was easy",
@@ -191,13 +251,23 @@ class Alfred(Bots):
         }
 
         self.join_room()
-        time.sleep(4)
-        self.send_message('Hallo baloo!')
+
+        while True:
+            time.sleep(10)
+            decide_action = random.randint(1,100)
+            if decide_action in range(11,30):
+                self.join_room()  
+
+
 
 
 class Tor(Bots):
 
+
     def start(self):
+
+        self.bot_sleep = 10
+
         self.QnA = {
         1 : "Hmm, theres 12 months in a year, and around 30 days in a month. 30 divided by 12 is around 2. Its got to be 2 days",
         2 : "Istanbul city probably!",
@@ -217,4 +287,14 @@ class Tor(Bots):
         }
 
         self.join_room()
+
+        while True:
+            time.sleep(10)
+            decide_action = random.randint(1,100)
+            if decide_action in range(11,20):
+                self.join_room()
+            if decide_action in range(1,5):
+                self.create_room()
+             
+
     

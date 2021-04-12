@@ -5,6 +5,7 @@ import requests
 import random
 import socket
 import threading
+import argparse
 import pickle
 import library as lib
 
@@ -18,24 +19,31 @@ ADDR = (SERVER, PORT)
 
 connections = []
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-n", "--notifications", action="store_true", help="To enable notifications")
+
+args = parser.parse_args()
+
+
 
 def server():
-    print("SERVER LISTENING...")
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server.bind(ADDR)
+    if args.notifications:
+        print("SERVER LISTENING...")
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        server.bind(ADDR)
 
-    while True:
-        server.listen()
-        conn, addr = server.accept()
+        while True:
+            server.listen()
+            conn, addr = server.accept()
 
-        # recieve id from bot when it has registered and appned it to connections-list
-        bot_id = conn.recv(1024).decode()
-        connections.append((conn, int(bot_id)))
+            # recieve id from bot when it has registered and appned it to connections-list
+            bot_id = conn.recv(1024).decode()
+            connections.append((conn, int(bot_id)))
 
-        print(f"Bot with ID {bot_id} Connected")
-
-
+            print(f"Bot with ID {bot_id} Connected")
+        
+    
 def notify(roomID, sender_id):
     if roomID:
         print("got roomID")
@@ -50,16 +58,15 @@ def notify(roomID, sender_id):
                     if conn[1] == user['userID']:
                         conn[0].send(pickle.dumps(response))
                         
-users = {
-    1: {'name': "Bob"}
-}
+users = {}
+
 
 # default chat rooms, new rooms are appended to this dictionary
 rooms = {
-   # 1: {'name': "General", 'users': [], 'messages': []},
-   # 2: {'name': "Kosegruppa", 'users': [], 'messages': []},
+    1: {'name': "General", 'users': [], 'messages': []},
+    2: {'name': "Kosegruppa", 'users': [], 'messages': []},
     3: {'name': "Lørdagspils", 'users': [], 'messages': []},
-   # 4: {'name': "Breakoutroom", 'users': [], 'messages': []}
+    4: {'name': "Breakoutroom", 'users': [], 'messages': []}
     }
 
 
@@ -117,7 +124,8 @@ class User(Resource):
             userID = random.randint(2,10000)
             while userID in users:
                 userID = random.randint(2,10000)
-            users[userID] = {'name' : name}
+        
+        users[userID] = {'name' : name}
 
         return {"status": 201, "message": "User successfully added", "user": users[userID], "userID": userID} 
 

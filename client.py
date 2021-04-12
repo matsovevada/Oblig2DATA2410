@@ -5,6 +5,7 @@ import Bots
 import time
 import pickle
 import threading
+import library as lib
 
 ## CLIENT ## 
 
@@ -50,36 +51,37 @@ else:
     print(f"{bot} is not a valid choice, please choose between the following bots: Per, Quiz-master")
     os._exit(1)
 
-def respond(messages):
-    for message in messages:
-        msg_split = message.split(" ")
-        #Room: 1 , 1: @ 11 Which nationality was the polar explorer Roald Amundsen?
-        if msg_split[4] == "@":
-            q_number = msg_split[5]
+def respond(messages, roomID):
+    if messages:
+        for message in messages:
+            msg_split = message.split(" ")
+            #Room: 1 , 1: @ 11 Which nationality was the polar explorer Roald Amundsen?
+            if msg_split[2] == "@":
+                q_number = msg_split[3]
 
-            #Formatting msg for terminal, removes "@" and q-number from string
-            msg_split.pop(4)
-            msg_split.pop(4)
-            #['Room:', '4', ',', '1:', '13', 'was', 'Donald', "Trump's", 'vice', 'president?']
-            msg_output = ""
-            for word in msg_split:
-                msg_output += word + " "
+                #Formatting msg for terminal, removes "@" and q-number from string
+                msg_split.pop(2)
+                msg_split.pop(2)
+                #['Room:', '4', ',', '1:', '13', 'was', 'Donald', "Trump's", 'vice', 'president?']
+                msg_output = ""
+                for word in msg_split:
+                    msg_output += word + " "
 
-            print(msg_output)
-            active_bot.send_message(active_bot.QnA[int(q_number)])
+                print(msg_output)
+                active_bot.send_message(active_bot.QnA[int(q_number)], roomID)
 
-        else:
-            print(message)
+            else:
+                print(message)
 
 def receive():
     while True:
         data = client.recv(1024)
         if data:
             data_loaded = pickle.loads(data)
-            alert = data_loaded['msg']
-            print(alert)
-            messages = active_bot.get_messages_in_room(data_loaded['roomID'])
-            respond(messages)
+            #alert = data_loaded['msg']
+            #print(alert)
+            messages = active_bot.get_messages_in_room(data_loaded['roomID'], active_bot.id)
+            respond(messages, data_loaded['roomID'] )
 
 
 if args.notifications:
@@ -102,10 +104,11 @@ else:
     thread = threading.Thread(target=active_bot.start)
     active_bot.register()
     thread.start()
-    while True:
-        time.sleep(6)
-        active_rooms = active_bot.get_all_rooms()
-        for room in active_rooms:
-            unread_messages = active_bot.get_messages_in_room(room, active_bot.id)
-            if (unread_messages): respond(unread_messages)
+    if active_bot.id != 1:     #Makes sure that Quizmaster does not respond the messages
+        while True:
+            time.sleep(1)
+            active_rooms = active_bot.get_all_rooms()
+            for room in active_rooms:
+                unread_messages = active_bot.get_messages_in_room(room, active_bot.id)
+                respond(unread_messages, room)
         
