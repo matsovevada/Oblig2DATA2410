@@ -18,9 +18,9 @@ class Bots:
     def register(self):
         response = lib.register_user(self.name)
         regid = response['userID']
-        self.id = id
+        self.id = regid
         print(f"User registered with name {self.name} and ID {regid}")
-        return id
+        return regid
 
     # Makes the bot create a chat-room on the server
     def create_room(self):
